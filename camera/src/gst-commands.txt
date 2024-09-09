@@ -1,0 +1,93 @@
+
+arecord --list-devices
+arecord -L
+alsamixer -c 1
+sudo alsactl store
+aplay -l
+
+gst-launch-1.0 -v audiotestsrc ! udpsink host=127.0.0.1 port=1234
+
+gst-launch-1.0 -v audiotestsrc ! audioconvert ! audioresample ! alsasink device=hw:1
+
+meekijken en luisteren
+
+udpReceive 6000
+
+gst-launch-1.0 udpsrc port=5002 ! "application/x-rtp, media=(string)audio, clock-rate=(int)44100, encoding-name=(string)L16, encoding-params=(string)1, channels=(int)2, payload=(int)96" ! rtpL16depay ! audioconvert ! audioresample ! audiopanorama panorama=-1 ! autoaudiosink
+gst-launch-1.0 udpsrc port=5003 ! "application/x-rtp, media=(string)audio, clock-rate=(int)44100, encoding-name=(string)L16, encoding-params=(string)1, channels=(int)2, payload=(int)96" ! rtpL16depay ! audioconvert ! audioresample ! audiopanorama panorama=-1 ! autoaudiosink
+
+gst-launch-1.0 -v udpsrc port=5000 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert !  autovideosink
+gst-launch-1.0 -v udpsrc port=5001 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert !  autovideosink
+
+
+gst-launch-1.0 -v udpsrc port=5000 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert ! videoflip method=counterclockwise ! nxvideosink
+
+
+gst-launch-1.0 v4l2src device=/dev/video0 ! 'video/x-raw-yuv,width=640,height=480' !  x264enc pass=qual quantizer=20 tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=1234
+cd
+gst-launch-1.0 -v videotestsrc pattern=snow ! video/x-raw,width=1280,height=720 ! autovideosink
+gst-launch-1.0 -v videotestsrc ! video/x-raw,width=800,height=600 ! autovideosink
+gst-launch-1.0 -v videotestsrc ! video/x-raw,width=800,height=600 ! udpsink host=127.0.0.1 port=1234
+
+
+gst-launch-1.0 -v udpsrc port=5001 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert !  videoflip method=counterclockwise ! nxvideosink
+
+sudo gst-inspect-1.0 | grep pay
+st-launch-1.0 -e v4l2src device=/dev/video15 ! video/x-raw,format=I420,framerate=30/1,width=1280,height=720 ! nxvideosinksudo gst-launch-1.0 filesrc location=/home/pi/demo.mp4 ! qtdemux name=demux demux. ! queue ! faad ! audioconvert ! audioresample ! alsasink device="hw:0,DEV=1" demux. ! queue ! h264parse ! nxvideodec ! nxvideosink dst-x=0 dst-y=93 dst-w=1280 dst-h=533
+
+sudo gst-launch-1.0 filesrc location=/home/pi/demo.mp4 ! qtdemux name=demux demux. ! queue ! faad ! audioconvert ! audioresample ! alsasink device="hw:0,DEV=1" demux. ! queue ! h264parse ! nxvideodec ! nxvideosink dst-x=0 dst-y=93 dst-w=1280 dst-h=533
+
+camera 
+sudo gst-launch-1.0 -e v4l2src device=/dev/video6 ! video/x-raw,format=I420,framerate=30/1,width=1280,height=720 ! nxvideosink
+sudo gst-launch-1.0 -e v4l2src device=/dev/video0 ! video/x-raw,format=I420,framerate=30/1,width=1280,height=720 ! nxvideosink
+
+sudo gst-launch-1.0 -e v4l2src device=/dev/video0 ! video/x-raw,format=I420,framerate=30/1,width=800,height=600 ! videoflip method=counterclockwise ! nxvideosink
+
+gst-launch-1.0 udpsrc port=5002 caps='application/x-rtp, media=(string)audio, clock-rate=(int)44100, encoding-name=(string)L16, encoding-params=(string)1, channels=(int)1, payload=(int)96' ! rtpL16depay ! audioconvert ! wavescope ! ximagesink
+gst-launch-1.0 -v udpsrc port=5001 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjitterbuffer latency=500 ! rtpjpegdepay ! jpegdec ! videoconvert !  videoflip method=counterclockwise ! nxvideosink
+
+gst-launch-1.0 -v udpsrc port=5001 buffer-size=650000 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjitterbuffer latency=10 ! rtpjpegdepay ! jpegdec ! videoconvert !  autovideosink
+
+
+echo canceller
+
+gst-launch-1.0  alsasrc device=hw:1 ! audioresample ! audioconvert ! audio/x-raw,rate=16000,channels=1  ! autoaudiosink device=hw:1
+gst-launch-1.0 \
+  alsasrc ! audioresample ! audioconvert ! audio/x-raw,rate=16000,channels=1 \
+    ! webrtcdsp ! audioconvert ! rtpL16pay \
+    ! udpsink host=127.0.0.1 port=5006 async=FALSE 
+
+gst-launch-1.0 \
+  alsasrc device=hw:1 ! audioresample ! audioconvert ! audio/x-raw,rate=16000,channels=1 \
+    ! webrtcdsp ! audioconvert ! rtpL16pay \
+    ! udpsink host=192.168.2.255 port=5004 async=FALSE 
+
+
+gst-launch-1.0 pulsesrc ! webrtcdsp ! webrtcechoprobe ! pulsesink
+
+  udpsrc port=5006 caps="application/x-rtp,channels=1,clock-rate=16000" \
+    ! rtpjitterbuffer latency=10 ! rtpL16depay ! audioconvert \
+    ! webrtcechoprobe ! audioconvert ! audioresample ! alsasink 
+    
+    
+filter:
+
+gst-launch-1.0 udpsrc port=5004 caps='application/x-rtp, media=(string)audio, clock-rate=(int)44100, encoding-name=(string)L16, encoding-params=(string)1, channels=(int)1, payload=(int)96' ! rtpL16depay ! audioconvert ! audiocheblimit mode=high-pass cutoff=400 ripple=0.2 ! audioconvert ! audioresample ! alsasink device=hw:1
+gst-launch-1.0 -v audiotestsrc ! audioconvert ! "audio/x-raw,rate=44100" ! rtpL16pay ! udpsink host=192.168.2.255 port=5004
+gst-launch-1.0 -v filesrc location=/home/dig/nanoPiFire2A/Believer.mp3 ! mpegaudioparse ! mpg123audiodec ! audioconvert ! "audio/x-raw,rate=44100" ! rtpL16pay ! udpsink host=192.168.2.255 port=5004
+    
+    
+Eclipse:
+maak autotools Helloworld project met goede naam
+set project properties C++ build build location naar /build map in project 
+compile
+copieer alle sources in src map, met Makefile.am
+
+in rootmap commandline  
+ ./configure \
+   --host=arm-none-linux-gnueabihf\
+   --prefix=/build\
+   PATH="/home/dig/nanoPiFire2A/tools/4.9.3/bin/:$PATH"
+
+
+    
