@@ -29,10 +29,11 @@
 #define TEST_INTERVAL2			1000 // ms   * 1000 * 1000LL) // interval for checking stopping transmit/ receive threads in nanosecons
 
 
-typedef enum {TEST_SPKR,TEST_MIC, TEST_BELLBUTTONS, TEST_END} test_t ;
+typedef enum {TEST_CAMERA, TEST_SPKR,TEST_MIC, TEST_BELLBUTTONS, TEST_END} test_t ;
 
 const char testText [TEST_END][20] = {
 		//		{"test ethernet" },
+		{"test camera"},
 		{"test luidspreker" },
 		{"test microfoon" },
 		{"test beltoetsen" }
@@ -208,8 +209,18 @@ void* testThread(void* args)
 
 	// video
 	switch (test){
+
+	case TEST_CAMERA:
+
+		setAudioReceiveTask (TASK_STOP, 0 ,0);
+		setAudioTransmitTask(TASK_STOP, 0 ,0);
+		setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0, 0);
+		break;
+
 	case TEST_SPKR:
 	case TEST_BELLBUTTONS:
+		setVideoTask(TASK_STOP, 0 ,0, 0);
+		usleep(1000);
 		//	case TEST_ETH:
 		videopipeline = gst_pipeline_new ("testVideopipeline");
 		textoverlay = gst_element_factory_make("textoverlay", "textoverlay" );
@@ -268,7 +279,8 @@ void* testThread(void* args)
 			}
 		}
 		/* Parse message */
-		gst_object_unref (bus);
+		if( bus)
+			gst_object_unref (bus);
 
 		if (msg != NULL) {
 			GError *err;
@@ -347,7 +359,7 @@ void* testThread(void* args)
 void* testModeThread(void* args)
 {
 	bool stop = false;
-	test_t test = TEST_SPKR;
+	test_t test =  TEST_CAMERA;//  TEST_SPKR;
 //	test_t test = TEST_MIC;
 	int result;
 	volatile threadStatus_t testStatus =  * (threadStatus_t *) args; // to pass to actual test - thread
@@ -359,6 +371,7 @@ void* testModeThread(void* args)
 	pThreadStatus->run = true;
 
 	pthread_t testThreadID;
+	setCPUSpeed ( CPU_SPEED_HIGH);
 
 	usleep(100 * 1000); // read keys
 	key ( ALLKEYS );  // read all keys
@@ -375,20 +388,21 @@ void* testModeThread(void* args)
 		while (!testStatus.run) // wait until task runs
 			usleep(1000);
 
-		while ( testStatus.run){
+		while (testStatus.run) {
 			usleep(10000);
-			if (key (KEY_SW1)) {
+			if (key(KEY_SW1)) {
 				testStatus.mustStop = true;
-				while ( testStatus.run)
+				while (testStatus.run)
 					usleep(1000);
 				test++;
 			}
-		}
-		if (( pThreadStatus->mustStop) || (test == TEST_END)){
-			testStatus.mustStop = true;
-			stop = true;
-			while ( testStatus.run)
-				usleep(1000);
+			//}
+			if ((pThreadStatus->mustStop) || (test == TEST_END)) {
+				testStatus.mustStop = true;
+				stop = true;
+				while (testStatus.run)
+					usleep(1000);
+			}
 		}
 	}
 	printf("testmode ended.\n");

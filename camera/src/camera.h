@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SOFTWAREVERSION         26
+#define SOFTWAREVERSION         27
 
 #define VIDEOPORT1				5000	// camera1 to display (begane grond)
 #define VIDEOPORT2				5001	// camera2 to display (eerste etage)
@@ -54,7 +54,7 @@
 
 #define COMMANDTIME				5 // seconds
 
-#define TESTMODEMAXTIME			(20*60) //seconds
+#define TESTMODEMAXTIME			60 //seconds
 
 #define TIMEROFF				99999
 #define OPENDOORTIME     		2 // sec 4000/MAINLOOPTIME

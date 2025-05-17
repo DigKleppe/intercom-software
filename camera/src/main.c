@@ -610,10 +610,10 @@ int main(int argc, char *argv[]) {
 
 						if ( testThreadStatus.run)  { // testmode running]
 							testmodeTimer--;
-							if ( testmodeTimer == 0 ) {
+							if ( testmodeTimer <= 0 ) {
 								testThreadStatus.mustStop = true;
 								while ( testThreadStatus.run)
-									usleep( 10000);
+										usleep( 10000);
 								setCPUSpeed ( CPU_SPEED_LOW);
 							}
 							if ((testThreadStatus.run) && key( KEY_SW2)) {  // stopped with button
@@ -625,6 +625,8 @@ int main(int argc, char *argv[]) {
 						}
 						else {
 							if ( key (KEY_SW1)) {  // testkey, abort active
+								print("SW1 Key pressed\n");
+
 								backLightOn();
 								active = false;
 								setCPUSpeed ( CPU_SPEED_HIGH);
@@ -635,17 +637,18 @@ int main(int argc, char *argv[]) {
 								pthread_create(&testThreadID, NULL, &testModeThread, (void *) &testThreadStatus);
 								testmodeTimer = TESTMODEMAXTIME;
 							}
-							if ( key (KEY_SW2)) {  // testkey, abort active
-								backLightOn();
-								active = false;
-								setCPUSpeed ( CPU_SPEED_HIGH);
-								setAudioReceiveTask (TASK_STOP, 0 ,0);
-								setAudioTransmitTask(TASK_STOP, 0 ,0);
-								setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0, 0);
-								usleep(10000);
-								testmodeTimer = TESTMODEMAXTIME;
-								testThreadStatus.run = true;
-							}
+//							if ( key (KEY_SW2)) {  // testkey, abort active
+//								print("SW2 Key pressed");
+//								backLightOn();
+//								active = false;
+//								setCPUSpeed ( CPU_SPEED_HIGH);
+//								setAudioReceiveTask (TASK_STOP, 0 ,0);
+//								setAudioTransmitTask(TASK_STOP, 0 ,0);
+//								setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0, 0);
+//								usleep(10000);
+//								testmodeTimer = TESTMODEMAXTIME;
+//								testThreadStatus.run = true;
+//							}
 
 							if (active ) {
 								LEDD4 = !LEDD4;
