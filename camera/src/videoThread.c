@@ -206,6 +206,8 @@ bool setVideoTask( streamerTask_t task, int UDPport, char * pText, int cameraCar
 		//	sprintf( pipelinedescriptor,"gst-launch-1.0 v4l2src device=/dev/video0 ! videoconvert ! videoscale ! video/x-raw,width=800,height=600 ! jpegenc ! rtpjpegpay ! udpsink");
 			sprintf( pipelinedescriptor,"gst-launch-1.0 v4l2src ! videoconvert ! videoscale ! video/x-raw,width=800,height=600 ! jpegenc ! rtpjpegpay ! udpsink");
 			strcat (pipelinedescriptor, str);
+
+
 			videopipeline = gst_parse_launch(pipelinedescriptor,NULL);
 
 			ret = gst_element_set_state (videopipeline, GST_STATE_PLAYING);
