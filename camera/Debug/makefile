@@ -47,7 +47,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := telefoon
+BUILD_ARTIFACT_NAME := camera
 BUILD_ARTIFACT_EXTENSION :=
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -58,19 +58,19 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 all: main-build
 
 # Main-build Target
-main-build: telefoon
+main-build: camera
 
 # Tool invocations
-telefoon: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
+camera: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-none-linux-gnueabihf-g++ -L"/mnt/linuxData/projecten/nanopi/sys-root/lib" -L"/mnt/linuxData/projecten/nanopi/sys-root/usr/lib" -L"/mnt/linuxData/projecten/nanopi/sys-root/lib/arm-linux-gnueabihf" -L"/mnt/linuxData/projecten/nanopi/sys-root/usr/lib/arm-linux-gnueabihf" -o "telefoon" $(OBJS) $(USER_OBJS) $(LIBS) -lgstreamer-1.0 -lffi -lpthread -lglib-2.0 -lgobject-2.0 -lgmodule-2.0 -lssl -lcrypto -lpcre
+	arm-none-linux-gnueabihf-g++ -L/mnt/linuxData/projecten/nanopi/sys-root/lib -L/mnt/linuxData/projecten/nanopi/sys-root/usr/lib -o "camera" $(OBJS) $(USER_OBJS) $(LIBS) -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0 -lgstreamer-1.0 -lffi -lgmodule-2.0 -lpthread -lgobject-2.0 -lssl -lcrypto -lglib-2.0 -lpcre
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) telefoon
+	-$(RM) camera
 	-@echo ' '
 
 .PHONY: all clean dependents main-build

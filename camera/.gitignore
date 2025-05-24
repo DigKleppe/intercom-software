@@ -1,4 +1,4 @@
 /.metadata/
-/debug
+/debug/
 *.o
 *.mk

@@ -305,11 +305,16 @@ int init(void) {
 	initIo();
 
 	if ( fopen ("/dev/video0","r" ) == NULL ){
-		cameraCard = -1;
-		printf("camera not found \n\r");
+		if ( fopen ("/dev/video1","r" ) == NULL ){
+			cameraCard = -1;
+			printf("camera not found \n\r");
+		}
+		else
+			cameraCard = 0;
 	}
-	else
-		cameraCard = 0;
+
+
+
 //	cameraCard = 0; // todo
 	microCardNo = detectAudioCardNo(SPEAKER_CARD_NAME1); // detect audio interface
 
@@ -457,7 +462,7 @@ int main(int argc, char *argv[]) {
 
 	gst_init(&argc, &argv);
 	init();
-	setCameraLEDS(true);
+//	setCameraLEDS(true);
 
 #ifdef TESTSTREAMS
 	status = 9999;
@@ -625,6 +630,7 @@ int main(int argc, char *argv[]) {
 						}
 						else {
 							if ( key (KEY_SW1)) {  // testkey, abort active
+//							if(1) { // todo remove
 								print("SW1 Key pressed\n");
 
 								backLightOn();

@@ -171,7 +171,7 @@ void initIo() {
 }
 
 void setCameraLEDS( bool state) {
-	setGPIOValue(CAMERALEDS, (int) state );
+//	setGPIOValue(CAMERALEDS, (int) state );
 }
 
 void setDooropen( bool state){
