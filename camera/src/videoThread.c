@@ -154,7 +154,6 @@ bool setVideoTask(streamerTask_t task, int UDPport, char *pText, int cameraCard)
 					videoflip, videosink, NULL);
 
 			caps = gst_caps_new_simple("video/x-raw",
-			//	"framerate",GST_TYPE_FRACTION, 30, 1,
 					"width", G_TYPE_INT, 800, "height", G_TYPE_INT, 480,
 					NULL);
 			if (link_elements_with_filter(videoSource, textoverlay,
@@ -219,13 +218,19 @@ bool setVideoTask(streamerTask_t task, int UDPport, char *pText, int cameraCard)
 		if (actualTask != VIDEOTASK_SHOWCAMERA) {
 			stopVideo();
 			error = false;
-
-			videopipeline =
-					gst_parse_launch(
-							"v4l2src ! videoconvert ! videoscale ! video/x-raw,width=800,height=600 !videoflip method=3 ! nxvideosink",
-							NULL);
+			videopipeline = gst_parse_launch(
+							"v4l2src ! videoconvert ! videoscale ! video/x-raw,width=800,height=600"
+							" ! videoflip method=3 ! nxvideosink",NULL);
 			ret = gst_element_set_state(videopipeline, GST_STATE_PLAYING);
-
+			if (ret == GST_STATE_CHANGE_FAILURE) {  // no camera
+				videopipeline = gst_parse_launch("gst-launch-1.0 videotestsrc pattern=spokes is-live=true ! videoconvert ! videoscale method=1"
+						" ! video/x-raw,width=800,height=600,framerate=30/1 ! videoflip method=3 ! nxvideosink",NULL);
+				ret = gst_element_set_state(videopipeline, GST_STATE_PLAYING);
+				if (ret == GST_STATE_CHANGE_FAILURE) {
+					g_printerr( "Unable to set the pipeline to the playing state.\n");
+					error = true;
+				}
+			}
 			break;
 		}
 		break;

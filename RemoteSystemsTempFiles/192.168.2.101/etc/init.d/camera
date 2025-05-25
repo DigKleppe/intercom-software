@@ -1,0 +1,32 @@
+#! /bin/sh
+
+case "$1" in
+
+  startx)
+	echo "Starting intercom"
+	/root/camera 
+	;;
+	
+  start)
+	echo "Starting camera"
+	c=1
+	while [ $c = 1 ]
+		do
+			(( /root/camera )) 
+		done &
+    
+    echo "done."
+	;;
+  stop)
+        echo -n "Stopping camera"
+	start-stop-daemon -K -n camera
+        echo "."
+	;;
+  *)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+esac
+
+exit 0
+
+# link in rc5.d: ln -s /etc/init.d/camera S99camera

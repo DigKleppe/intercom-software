@@ -630,7 +630,6 @@ int main(int argc, char *argv[]) {
 						}
 						else {
 							if ( key (KEY_SW1)) {  // testkey, abort active
-//							if(1) { // todo remove
 								print("SW1 Key pressed\n");
 
 								backLightOn();
@@ -643,19 +642,6 @@ int main(int argc, char *argv[]) {
 								pthread_create(&testThreadID, NULL, &testModeThread, (void *) &testThreadStatus);
 								testmodeTimer = TESTMODEMAXTIME;
 							}
-//							if ( key (KEY_SW2)) {  // testkey, abort active
-//								print("SW2 Key pressed");
-//								backLightOn();
-//								active = false;
-//								setCPUSpeed ( CPU_SPEED_HIGH);
-//								setAudioReceiveTask (TASK_STOP, 0 ,0);
-//								setAudioTransmitTask(TASK_STOP, 0 ,0);
-//								setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0, 0);
-//								usleep(10000);
-//								testmodeTimer = TESTMODEMAXTIME;
-//								testThreadStatus.run = true;
-//							}
-
 							if (active ) {
 								LEDD4 = !LEDD4;
 								//backLightOn();
@@ -667,6 +653,11 @@ int main(int argc, char *argv[]) {
 									}
 								}
 							}
+						}
+						if ( key (KEY_SW2)) {  // testkey, open door
+							print("SW2 Key pressed");
+							openDoorTimer = OPENDOORTIME;
+							setDooropen( true);
 						}
 					} // end every second
 

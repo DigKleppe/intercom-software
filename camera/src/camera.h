@@ -54,7 +54,7 @@
 
 #define COMMANDTIME				5 // seconds
 
-#define TESTMODEMAXTIME			60 //seconds
+#define TESTMODEMAXTIME			120 //seconds
 
 #define TIMEROFF				99999
 #define OPENDOORTIME     		2 // sec 4000/MAINLOOPTIME
