@@ -211,10 +211,17 @@ void* testThread(void* args)
 	switch (test){
 
 	case TEST_CAMERA:
-
+		if (fopen ("/dev/video0","r" ) == NULL)
+		{
+			setVideoTask( VIDEOTASK_SHOWMESSAGE,0, "Geen camera", -1);
+			printf("camera not found \n\r");
+		}
+		else {
+			setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0, 0);
+		}
 		setAudioReceiveTask (TASK_STOP, 0 ,0);
 		setAudioTransmitTask(TASK_STOP, 0 ,0);
-		setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0, 0);
+
 		break;
 
 	case TEST_SPKR:
