@@ -149,8 +149,6 @@ int UDPVideoPort;
 int UDPAudioRxPort;
 int UDPAudioTxPort;
 
-int cameraCard;
-
 void  print( const char *format, ...) {
 	va_list args;
 	va_start(args, format);
@@ -304,18 +302,6 @@ int init(void) {
 	setCPUSpeed ( CPU_SPEED_LOW);
 	initIo();
 
-	if ( fopen ("/dev/video0","r" ) == NULL ){
-		if ( fopen ("/dev/video1","r" ) == NULL ){
-			cameraCard = -1;
-			printf("camera not found \n\r");
-		}
-		else
-			cameraCard = 0;
-	}
-
-
-
-//	cameraCard = 0; // todo
 	microCardNo = detectAudioCardNo(SPEAKER_CARD_NAME1); // detect audio interface
 
 	if (microCardNo == -1) {
@@ -342,8 +328,6 @@ int init(void) {
 		printf("timerThread not created.\n");
 		return -1;
 	}
-
-	//	hang();
 
 	result = pthread_create(&keysThreadID, NULL, &keysThread, (void *) &keysThreadStatus);
 	if (result == 0) {
@@ -432,7 +416,7 @@ void startRing ( int p) {
 		commandTimer[p] = COMMANDTIME;
 		transmitData.command = COMMAND_RING;
 		print("ring to %d\n", p*2);
-		setVideoTask(VIDEOTASK_STREAM,UDPVideoPort,NULL,cameraCard);
+		setVideoTask(VIDEOTASK_STREAM,UDPVideoPort,NULL);
 		setAudioTransmitTask(AUDIOTASK_TALK,UDPAudioTxPort,microCardNo);
 		active = true;
 		if (!testThreadStatus.run) {
@@ -491,7 +475,7 @@ int main(int argc, char *argv[]) {
 					break;
 				case ACT_STATE_TALKING:
 					activeTimer[activeTelephone]=ACTIVETIME;
-					setVideoTask(VIDEOTASK_STREAM,UDPVideoPort,NULL,cameraCard);
+					setVideoTask(VIDEOTASK_STREAM,UDPVideoPort,NULL);
 					setAudioTransmitTask(AUDIOTASK_TALK,UDPAudioTxPort,microCardNo);
 					setAudioReceiveTask(AUDIOTASK_LISTEN,UDPAudioRxPort,microCardNo);
 					active = true;
@@ -509,14 +493,14 @@ int main(int argc, char *argv[]) {
 					sprintf(message + strlen(message), "\r\n %s %s\n", __DATE__ , __TIME__);
 
 					UDPsendMessage(message);
-					setVideoTask(VIDEOTASK_SHOWMESSAGE, 0, message, cameraCard);
+					setVideoTask(VIDEOTASK_SHOWMESSAGE, 0, message);
 					printf("Version %3.1f %s %s\n", SOFTWAREVERSION/10.0, __DATE__ , __TIME__);
 					subStatus++;
 					break;
 				}
 				break;
 				case 20:
-					setVideoTask(TASK_STOP,0,NULL, cameraCard);
+					setVideoTask(TASK_STOP,0,NULL);
 					//	subStatus++;
 					subStatus = 0;
 					status = STATUS_IDLE;
@@ -545,7 +529,7 @@ int main(int argc, char *argv[]) {
 					setAudioReceiveTask( TASK_STOP,0,0);
 					setAudioTransmitTask(TASK_STOP,0,0);
 
-					setVideoTask(TASK_STOP,0,NULL,cameraCard); // mag weg
+					setVideoTask(TASK_STOP,0,NULL); // mag weg
 					backLightOff();
 
 
@@ -559,7 +543,7 @@ int main(int argc, char *argv[]) {
 
 					if (! unConnected){ // all ok screen off (memleak messageThread)
 						backLightOff();
-						setVideoTask(TASK_STOP,0,NULL,cameraCard);
+						setVideoTask(TASK_STOP,0,NULL);
 						if ( presc)
 							presc--;
 						else {
@@ -582,8 +566,7 @@ int main(int argc, char *argv[]) {
 								}
 								stationID++;
 							}  while ( stationID < NR_STATIONS-1);  // skip last (test station)
-							//			backLightHalf();
-							//			setVideoTask(VIDEOTASK_SHOWMESSAGE, 0, message,cameraCard);
+
 							print("\n" );
 						}
 					}
@@ -623,7 +606,7 @@ int main(int argc, char *argv[]) {
 							}
 							if ((testThreadStatus.run) && key( KEY_SW2)) {  // stopped with button
 								testmodeTimer = 0;
-								setVideoTask(TASK_STOP, 0 ,0, 0);
+								setVideoTask(TASK_STOP, 0 ,0);
 								setCPUSpeed ( CPU_SPEED_LOW);
 								testThreadStatus.run = false;
 							}
@@ -637,7 +620,7 @@ int main(int argc, char *argv[]) {
 								setCPUSpeed ( CPU_SPEED_HIGH);
 								setAudioReceiveTask (TASK_STOP, 0 ,0);
 								setAudioTransmitTask(TASK_STOP, 0 ,0);
-								setVideoTask(TASK_STOP, 0 ,0, 0);
+								setVideoTask(TASK_STOP, 0 ,0);
 								usleep(10000);
 								pthread_create(&testThreadID, NULL, &testModeThread, (void *) &testThreadStatus);
 								testmodeTimer = TESTMODEMAXTIME;

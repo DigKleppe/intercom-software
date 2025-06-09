@@ -131,7 +131,7 @@ bool findCamera (char * deviceStr) {
 	return found;
 }
 
-bool setVideoTask(streamerTask_t task, int UDPport, char *pText, int cameraCard) {
+bool setVideoTask(streamerTask_t task, int UDPport, char *pText) {
 	bool error = false;
 	char deviceStr[20];
 	char pipelinedescriptor[300];

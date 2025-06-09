@@ -11,7 +11,7 @@
 #include <gst/gst.h>
 
 gboolean link_elements_with_filter (GstElement *element1, GstElement *element2, GstCaps *caps);
-bool setVideoTask( streamerTask_t task, int UDPport, char * pText, int cameraCard);
+bool setVideoTask( streamerTask_t task, int UDPport, char * pText);
 streamerTask_t getVideoTask();
 bool setVideoText ( char * newText);
 bool videoIsStopped ( void);

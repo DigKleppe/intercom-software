@@ -211,14 +211,7 @@ void* testThread(void* args)
 	switch (test){
 
 	case TEST_CAMERA:
-		if (fopen ("/dev/video0","r" ) == NULL)
-		{
-			setVideoTask( VIDEOTASK_SHOWMESSAGE,0, "Geen camera", -1);
-			printf("camera not found \n\r");
-		}
-		else {
-			setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0, 0);
-		}
+		setVideoTask(VIDEOTASK_SHOWCAMERA, 0 ,0);
 		setAudioReceiveTask (TASK_STOP, 0 ,0);
 		setAudioTransmitTask(TASK_STOP, 0 ,0);
 
@@ -226,7 +219,7 @@ void* testThread(void* args)
 
 	case TEST_SPKR:
 	case TEST_BELLBUTTONS:
-		setVideoTask(TASK_STOP, 0 ,0, 0);
+		setVideoTask(TASK_STOP, 0 ,0);
 		usleep(1000);
 		//	case TEST_ETH:
 		videopipeline = gst_pipeline_new ("testVideopipeline");
